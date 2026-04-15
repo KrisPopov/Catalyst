@@ -1,0 +1,136 @@
+Catalyst Tracking and Decision System
+Functional description and workflow specification for business implementation
+ 
+What this system solves
+•	No more handwritten lists of serial numbers and prices.
+•	Each catalyst becomes a clear digital record from the moment it enters the warehouse.
+•	Price collection from partner catalogues remains manual, but everything around it becomes faster and structured.
+•	Management gains visibility over stock, sales, recycling, disposal, and historical pricing.
+
+1. Purpose of the system
+The system is a compact operational platform for registering, tracking, pricing, and deciding the outcome of catalytic converters handled by the business. Its purpose is to replace the current paper-based process with a single structured workflow that is faster, easier to follow, and less dependent on memory, handwritten notes, and repeated manual work.
+The system does not attempt to fully automate external catalogue pricing, because the partner catalogues do not provide direct system integration. Instead, it reduces effort around that limitation: it prepares the employee to find the price faster, store prices in one place, compare them, and immediately take the next business decision.
+2. Main business goals
+•	Replace handwritten tracking with digital records for every catalyst.
+•	Assign a simple internal ID automatically to each newly registered catalyst.
+•	Reduce repeated typing, switching, and searching during pricing and decision-making.
+•	Store all important information for each catalyst in a single record.
+•	Provide a quick view of stock, sales, recycling, and disposal activity.
+•	Create a small ERP-like workflow around the actual daily process used by the client.
+3. Core information stored for each catalyst
+Each catalyst record should hold all business-relevant information in one place. At minimum, a catalyst should store: internal ID, original serial number, optional photo, date of registration, current status, prices from each catalogue, final selected action, selected partner if sold, final sale price, and historical notes such as the last known sale price for the same serial number when such information exists.
+Field	Business meaning
+Internal ID	A short system-generated number written on the catalyst itself for easy physical identification.
+Serial number	The original serial number from the catalyst, used for price checking in partner catalogues.
+Photo	Optional image for condition reference, identification, or later review.
+Registration data	Who added the catalyst and when it was registered.
+Catalogue prices	Separate stored price entries for Novitera, DSAuto, Valdi, and future catalogues if needed.
+Last known sale price	A reference showing how this catalyst or the same serial number was sold in the past, if such record exists.
+Status	Present, under review, sold, sent for recycling, or trash/disposed.
+Final decision details	Chosen partner, final price, recycling decision, or disposal reason when relevant.
+Notes / comments	Any additional remarks useful for operations or management.
+
+The system should also maintain activity history so the business can understand what happened to each catalyst over time, even if the final screen keeps that history simple and easy to read.
+4. Main users
+•	Warehouse employee or operator who registers catalysts, checks catalogues, enters prices, and updates status.
+•	Owner or manager who reviews prices, chooses the final outcome, checks stock, and uses the dashboard.
+5. End-to-end workflow
+5.1 Receiving and registering catalysts
+1.	A catalyst arrives at the business.
+2.	The employee opens the system and starts a new catalyst entry.
+3.	The employee enters the serial number. If needed, a photo can also be attached.
+4.	As soon as the catalyst is created, the system automatically assigns the next internal ID.
+5.	The employee writes that internal ID physically on the catalyst, replacing the current handwritten matching process on paper.
+6.	The new catalyst is immediately saved in the warehouse stock with status Present or Under Review, depending on the desired workflow.
+The system should support both single entry and bulk entry. In bulk entry mode, the employee can paste or type multiple serial numbers one under another, and the system creates multiple catalyst records in one action, each with its own automatically assigned internal ID.
+5.2 Opening a catalyst and checking prices
+After registration, the employee opens a catalyst record to collect prices from the partner catalogues.
+Step	User action
+1. Open catalyst	Employee opens the catalyst record from the list or immediately after creating it.
+2. Copy serial number	With one click, the serial number is copied so the user does not need to retype it.
+3. Open catalogue	The user clicks a dedicated button for Novitera, DSAuto, or Valdi to open the respective catalogue page.
+4. Check the price	In the partner catalogue, the employee pastes or searches the serial number and reads the offered price.
+5. Return and save	Back in the system, the employee enters the price in the correct catalogue field and saves it quickly.
+6. Compare and decide	The record shows all collected prices together, plus the last known sale price if available.
+
+The catalyst screen should clearly separate price fields by catalogue so the employee can see what has already been checked and what is still missing. The action should feel like a fast operational loop: open record, copy serial number, open partner site, check price, paste price, continue.
+5.3 Making the final business decision
+7.	Once the prices are entered, the owner or employee reviews the available offers.
+8.	The system shows all catalogue prices together so comparison is immediate.
+9.	If the catalyst should be sold, the user selects the chosen partner and records the final sale price and sale date.
+10.	If the catalyst should be recycled, the user changes the status to Sent for Recycling.
+11.	If the catalyst is in such poor condition that disposal is cheaper than recycling, the user changes the status to Trash / Disposed.
+12.	The selected action removes ambiguity and updates stock and dashboard statistics automatically.
+6. Functional requirements
+6.1 Catalyst registration
+•	Create a new catalyst by entering at minimum the serial number.
+•	Automatically assign a new internal ID for every created catalyst.
+•	Allow an optional photo to be attached during creation or later.
+•	Allow immediate continuation with a Save and Add New flow to reduce repeated navigation.
+•	Support bulk creation by entering multiple serial numbers in one operation.
+6.2 Catalyst detail screen
+•	Display internal ID and serial number prominently.
+•	Allow one-click copying of the serial number.
+•	Show separate action buttons for Novitera, DSAuto, and Valdi.
+•	Allow the user to enter a separate price taken from each catalogue.
+•	Display the last known sale price for the catalyst if historical information exists.
+•	Show current status and allow status updates with minimal effort.
+•	Show optional photo, notes, and decision details.
+6.3 Status handling
+Each catalyst should always have a clear operational status. This makes both the list view and the dashboard meaningful.
+Status	Meaning
+Present	The catalyst is physically in the warehouse and available for pricing, decision-making, or later sale.
+Quoted / Under Review	Prices have been entered from one or more catalogues, but no final action has been taken yet.
+Reserved for Sale	A decision has been made to sell the catalyst to a selected partner, but the transaction is not yet fully completed.
+Sold	The catalyst has been sold. The final buyer, sale price, and sale date are stored for history and reporting.
+Sent for Recycling	The catalyst has been transferred for recycling instead of sale.
+Trash / Disposed	The catalyst was discarded because recycling was not economically justified.
+
+6.4 Sale and outcome recording
+•	When sold, the record should store the chosen buyer or partner, the final sale price, and the date of sale.
+•	When sent for recycling, the record should be marked accordingly so it leaves regular stock but remains visible in history and reporting.
+•	When disposed, the record should also remain in the system as a historical outcome rather than disappearing.
+7. Search, list view, and stock visibility
+The main list of catalysts should function as the operational center of the system. Users should be able to locate catalysts immediately and understand the situation without opening every individual record.
+•	Search by serial number.
+•	Search by internal ID.
+•	Filter by status.
+•	Filter by whether prices have been entered or not.
+•	See a compact list with the most important information at a glance: ID, serial number, current status, entered prices, and final action if completed.
+•	Quickly open any catalyst for review or update.
+8. Dashboard and reporting
+The dashboard should summarize warehouse activity and give the owner a real-time overview of operations.
+Dashboard metric	What it shows
+Current stock	How many catalysts are currently in status Present or Under Review.
+Sold catalysts	Total count sold for the selected period and overall.
+Recycling volume	How many catalysts were sent for recycling.
+Disposed volume	How many catalysts were thrown away.
+Newly registered catalysts	How many catalysts were entered during the selected period.
+Conversion visibility	How many priced catalysts ended up sold versus recycled or disposed.
+
+The dashboard should be easy to understand visually and should not feel like an accounting report. Its main role is to answer practical questions quickly: How many catalysts do we currently have? How many have been sold? How many went to recycling? How many were thrown away?
+9. UX principles
+•	The interface should be clean, readable, and comfortable for frequent everyday use.
+•	Buttons should be large enough and clearly labeled so the workflow is obvious.
+•	The system should reduce unnecessary clicks and page changes wherever possible.
+•	Actions that are repeated many times per day must be optimized first.
+•	Important information should be visible immediately without forcing the user to search through the screen.
+•	The flow should support uninterrupted repetitive work, especially when registering or pricing many catalysts in sequence.
+Examples of UX optimization
+•	After creating a catalyst, the user should be able to choose Save and Add New instead of saving, returning to the list, and reopening the creation screen.
+•	The serial number should have a dedicated copy action, so it can be transferred into a partner catalogue without retyping.
+•	Catalogue buttons should be visible directly inside the catalyst record so the user does not need to remember or search for website links.
+•	Price entry should be simple and grouped by catalogue, so the user can immediately paste the collected values.
+
+10. Business rules
+•	Every catalyst must receive a unique internal ID generated by the system.
+•	A catalyst remains searchable and visible in history even after it is sold, recycled, or disposed.
+•	Catalogue prices are reference values entered manually by the employee; they do not overwrite the final sale price.
+•	The final outcome of a catalyst should always be traceable.
+•	Historical sale information should be reused as a reference when available, because it improves future decision-making.
+11. Expected result after implementation
+After implementation, the business should be able to stop using handwritten catalyst lists as the primary operating method.
+Employees should register catalysts faster, identify them more easily in the warehouse, collect and compare catalogue prices in a more structured way, and update the final outcome without losing information.
+The owner should gain control over stock, historical data, and daily decisions through one system that reflects the real business process rather than forcing a complicated generic workflow.
+12. Scope note
+This system is intended to digitalize and optimize the current workflow, not to fully automate external partner pricing. Because the partner catalogues do not provide direct integration, the practical value of the system is in speed, organization, traceability, and decision support around that manual pricing step.

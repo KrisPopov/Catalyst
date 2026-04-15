@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Система за управление на катализатори</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <p class="eyebrow">Складов процес</p>
+        <h1>Система за управление на катализатори</h1>
+        <p class="brand-copy">Следете наличностите, сравнявайте каталожни цени и записвайте крайния резултат за всеки катализатор на едно място.</p>
+      </div>
+      <section class="panel quick-register">
+        <div class="panel-heading">
+          <h2>Бърза регистрация</h2>
+          <p>Регистрирайте по един катализатор за бърз прием.</p>
+        </div>
+        <form id="quick-register-form" class="stack">
+          <label><span>Сериен номер</span><input id="serial-input" name="serialNumber" type="text" placeholder="Въведете сериен номер" required></label>
+          <label><span>Статус</span><select id="status-input" name="status"><option value="Наличен">Наличен</option><option value="Оферти / В процес на преглед">Оферти / В процес на преглед</option></select></label>
+          <label><span>Регистриран от</span><input id="created-by-input" name="createdBy" type="text" placeholder="Име на служител"></label>
+          <div class="button-row">
+            <button type="submit" class="primary">Запази катализатора</button>
+            <button type="button" id="save-add-new" class="secondary">Запази и добави нов</button>
+          </div>
+        </form>
+      </section>
+      <section class="panel bulk-register">
+        <div class="panel-heading">
+          <h2>Масово въвеждане</h2>
+          <p>Поставете няколко серийни номера, по един на ред.</p>
+        </div>
+        <form id="bulk-register-form" class="stack">
+          <label><span>Серийни номера</span><textarea id="bulk-serials" name="serials" rows="7" placeholder="ABC123&#10;XYZ456&#10;LMN789"></textarea></label>
+          <button type="submit" class="secondary">Създай записи</button>
+        </form>
+      </section>
+    </aside>
+    <main class="main-content">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Оперативен преглед</p>
+          <h2>Ежедневни наличности, цени и крайни решения</h2>
+        </div>
+        <button id="seed-demo-data" class="ghost">Зареди примерни данни</button>
+      </header>
+      <section id="dashboard" class="dashboard-grid" aria-label="Показатели на таблото"></section>
+      <section class="workspace-grid">
+        <div class="panel list-panel">
+          <div class="panel-heading space-between">
+            <div>
+              <h2>Налични катализатори</h2>
+              <p>Търсете и филтрирайте складовия списък.</p>
+            </div>
+            <div class="results-meta"><strong id="result-count">0</strong><span>записа</span></div>
+          </div>
+          <div class="filters">
+            <label><span>Търсене</span><input id="search-input" type="search" placeholder="Търсене по сериен номер или вътрешен ID"></label>
+            <label><span>Статус</span><select id="status-filter"><option value="all">Всички статуси</option></select></label>
+            <label><span>Цени</span><select id="price-filter"><option value="all">Всички</option><option value="priced">Има поне една цена</option><option value="unpriced">Все още няма цени</option></select></label>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>ID</th><th>Сериен номер</th><th>Статус</th><th>Цени</th><th>Резултат</th><th>Обновен</th></tr>
+              </thead>
+              <tbody id="catalyst-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel detail-panel">
+          <div id="detail-empty" class="detail-empty">
+            <p class="eyebrow">Изберете катализатор</p>
+            <h2>Готов за ценообразуване и крайно решение</h2>
+            <p>Изберете катализатор от списъка, за да копирате серийния номер, да отворите каталозите, да въведете оферти и да запишете крайния резултат.</p>
+          </div>
+          <section id="detail-view" class="detail-view hidden" aria-live="polite">
+            <div class="detail-header">
+              <div><p class="eyebrow" id="detail-id"></p><h2 id="detail-serial"></h2></div>
+              <button id="copy-serial" class="secondary">Копирай номера</button>
+            </div>
+            <div class="detail-summary" id="detail-summary"></div>
+            <div class="partner-links">
+              <a href="https://novitera.com/" target="_blank" rel="noreferrer">Отвори Novitera</a>
+              <a href="https://dsauto.bg/" target="_blank" rel="noreferrer">Отвори DSAuto</a>
+              <a href="https://valdi.bg/" target="_blank" rel="noreferrer">Отвори Valdi</a>
+            </div>
+            <form id="detail-form" class="stack detail-form">
+              <div class="price-grid">
+                <label><span>Цена от Novitera</span><input name="novitera" type="number" step="0.01" min="0" placeholder="0.00"></label>
+                <label><span>Цена от DSAuto</span><input name="dsauto" type="number" step="0.01" min="0" placeholder="0.00"></label>
+                <label><span>Цена от Valdi</span><input name="valdi" type="number" step="0.01" min="0" placeholder="0.00"></label>
+              </div>
+              <div class="decision-grid">
+                <label><span>Статус</span><select name="status" id="detail-status"></select></label>
+                <label><span>Крайно действие</span><select name="finalAction" id="detail-final-action"><option value="">Все още няма крайно действие</option><option value="Продаден">Продаден</option><option value="Изпратен за рециклиране">Изпратен за рециклиране</option><option value="Изхвърлен">Изхвърлен</option><option value="Резервиран за продажба">Резервиран за продажба</option></select></label>
+                <label><span>Избран партньор</span><select name="selectedPartner"><option value="">Няма избран</option><option value="Novitera">Novitera</option><option value="DSAuto">DSAuto</option><option value="Valdi">Valdi</option><option value="Друг">Друг</option></select></label>
+                <label><span>Крайна продажна цена</span><input name="finalSalePrice" type="number" step="0.01" min="0" placeholder="0.00"></label>
+                <label><span>Дата на продажба</span><input name="saleDate" type="date"></label>
+                <label><span>Причина / бележка за резултата</span><input name="outcomeReason" type="text" placeholder="По желание"></label>
+              </div>
+              <div class="support-grid">
+                <label><span>Бележки</span><textarea name="notes" rows="4" placeholder="Оперативни бележки, състояние или коментар"></textarea></label>
+                <label><span>Снимка</span><input id="photo-input" name="photo" type="file" accept="image/*"></label>
+              </div>
+              <div id="photo-preview-wrap" class="photo-preview-wrap hidden"><img id="photo-preview" alt="Преглед на катализатор"></div>
+              <div class="button-row">
+                <button type="submit" class="primary">Запази детайлите</button>
+                <button type="button" id="mark-reviewed" class="ghost">Маркирай като в преглед</button>
+              </div>
+            </form>
+            <section class="history-section">
+              <div class="panel-heading">
+                <h3>История на действията</h3>
+                <p>Проследете всяка важна промяна по този катализатор.</p>
+              </div>
+              <ul id="activity-history" class="history-list"></ul>
+            </section>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+  <template id="metric-card-template">
+    <article class="metric-card"><p class="metric-label"></p><strong class="metric-value"></strong><span class="metric-detail"></span></article>
+  </template>
+  <script src="app.js"></script>
+</body>
+</html>
