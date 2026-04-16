@@ -12,16 +12,16 @@ const STATUS = {
 const STATUS_OPTIONS = Object.values(STATUS);
 
 const LEGACY_STATUS_MAP = {
-  "Present": STATUS.PRESENT,
+  Present: STATUS.PRESENT,
   "Quoted / Under Review": STATUS.REVIEW,
   "Reserved for Sale": STATUS.RESERVED,
-  "Sold": STATUS.SOLD,
+  Sold: STATUS.SOLD,
   "Sent for Recycling": STATUS.RECYCLING,
   "Trash / Disposed": STATUS.DISPOSED,
 };
 
 const LEGACY_ACTION_MAP = {
-  "Sold": STATUS.SOLD,
+  Sold: STATUS.SOLD,
   "Sent for Recycling": STATUS.RECYCLING,
   "Trash / Disposed": STATUS.DISPOSED,
   "Reserved for Sale": STATUS.RESERVED,
@@ -52,6 +52,9 @@ const activityHistory = document.querySelector("#activity-history");
 const copySerialButton = document.querySelector("#copy-serial");
 const markReviewedButton = document.querySelector("#mark-reviewed");
 const seedDemoDataButton = document.querySelector("#seed-demo-data");
+const noviteraLink = document.querySelector("#novitera-link");
+const dsautoLink = document.querySelector("#dsauto-link");
+const valdiLink = document.querySelector("#valdi-link");
 
 const state = {
   catalysts: [],
@@ -66,19 +69,29 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
     const parsed = JSON.parse(raw);
-    state.catalysts = Array.isArray(parsed.catalysts) ? parsed.catalysts.map(normalizeCatalyst) : [];
-    state.nextId = Number.isFinite(parsed.nextId) ? parsed.nextId : deriveNextId(state.catalysts);
+    state.catalysts = Array.isArray(parsed.catalysts)
+      ? parsed.catalysts.map(normalizeCatalyst)
+      : [];
+    state.nextId = Number.isFinite(parsed.nextId)
+      ? parsed.nextId
+      : deriveNextId(state.catalysts);
   } catch (error) {
     console.error("Неуспешно зареждане на данните", error);
   }
 }
 
 function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ catalysts: state.catalysts, nextId: state.nextId }));
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify({ catalysts: state.catalysts, nextId: state.nextId }),
+  );
 }
 
 function deriveNextId(catalysts) {
-  const highest = catalysts.reduce((max, catalyst) => Math.max(max, Number(catalyst.internalId || 0)), 0);
+  const highest = catalysts.reduce(
+    (max, catalyst) => Math.max(max, Number(catalyst.internalId || 0)),
+    0,
+  );
   return highest + 1;
 }
 
@@ -94,7 +107,10 @@ function nowIso() {
 
 function formatDateTime(value) {
   if (!value) return "Няма запис";
-  return new Intl.DateTimeFormat("bg-BG", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+  return new Intl.DateTimeFormat("bg-BG", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
 }
 
 function formatMoney(value) {
@@ -104,7 +120,9 @@ function formatMoney(value) {
 }
 
 function hasAnyPrice(catalyst) {
-  return Object.values(catalyst.prices || {}).some((value) => Number(value) > 0);
+  return Object.values(catalyst.prices || {}).some(
+    (value) => Number(value) > 0,
+  );
 }
 
 function normalizeStatus(value) {
@@ -118,23 +136,50 @@ function normalizeAction(value) {
 function normalizeActivityMessage(message) {
   if (!message) return "Създаден запис.";
   const replacements = [
-    ['Catalyst registered with status "Present".', `Катализаторът е регистриран със статус "${STATUS.PRESENT}".`],
-    ['Catalyst registered with status "Quoted / Under Review".', `Катализаторът е регистриран със статус "${STATUS.REVIEW}".`],
-    ['Initial prices entered from all partner catalogues.', "Въведени са начални цени от всички партньорски каталози."],
-    ['Sold after comparing three catalogue offers.', "Продаден след сравнение на три каталожни оферти."],
-    ['Transferred to recycling due to poor condition.', "Изпратен за рециклиране поради лошо състояние."],
-    ['Photo added or updated.', "Добавена или обновена е снимка."],
-    ['Catalogue prices updated and catalyst reviewed.', "Каталожните цени са обновени и катализаторът е прегледан."],
-    ['Marked as sent for recycling.', "Маркиран като изпратен за рециклиране."],
+    [
+      'Catalyst registered with status "Present".',
+      `Катализаторът е регистриран със статус "${STATUS.PRESENT}".`,
+    ],
+    [
+      'Catalyst registered with status "Quoted / Under Review".',
+      `Катализаторът е регистриран със статус "${STATUS.REVIEW}".`,
+    ],
+    [
+      "Initial prices entered from all partner catalogues.",
+      "Въведени са начални цени от всички партньорски каталози.",
+    ],
+    [
+      "Sold after comparing three catalogue offers.",
+      "Продаден след сравнение на три каталожни оферти.",
+    ],
+    [
+      "Transferred to recycling due to poor condition.",
+      "Изпратен за рециклиране поради лошо състояние.",
+    ],
+    ["Photo added or updated.", "Добавена или обновена е снимка."],
+    [
+      "Catalogue prices updated and catalyst reviewed.",
+      "Каталожните цени са обновени и катализаторът е прегледан.",
+    ],
+    ["Marked as sent for recycling.", "Маркиран като изпратен за рециклиране."],
   ];
   let translated = message;
   replacements.forEach(([from, to]) => {
     translated = translated.replace(from, to);
   });
-  translated = translated.replace(/^Marked as sold to /, "Маркиран като продаден на ");
+  translated = translated.replace(
+    /^Marked as sold to /,
+    "Маркиран като продаден на ",
+  );
   translated = translated.replace(/ for ([\d.]+(?: BGN| лв\.))\.$/, " за $1.");
-  translated = translated.replace(/^Marked as disposed/, "Маркиран като изхвърлен");
-  translated = translated.replace(/^Status updated to "(.+)"\.$/, 'Статусът е обновен на "$1".');
+  translated = translated.replace(
+    /^Marked as disposed/,
+    "Маркиран като изхвърлен",
+  );
+  translated = translated.replace(
+    /^Status updated to "(.+)"\.$/,
+    'Статусът е обновен на "$1".',
+  );
   translated = translated.replace("partner", "партньор");
   return translated;
 }
@@ -144,10 +189,16 @@ function normalizeCatalyst(catalyst) {
     ...catalyst,
     status: normalizeStatus(catalyst.status),
     finalAction: normalizeAction(catalyst.finalAction),
-    selectedPartner: catalyst.selectedPartner === "Other" ? "Друг" : catalyst.selectedPartner || "",
+    selectedPartner:
+      catalyst.selectedPartner === "Other"
+        ? "Друг"
+        : catalyst.selectedPartner || "",
     createdBy: catalyst.createdBy || "Неуточнен служител",
     activity: Array.isArray(catalyst.activity)
-      ? catalyst.activity.map((entry) => ({ ...entry, message: normalizeActivityMessage(entry.message) }))
+      ? catalyst.activity.map((entry) => ({
+          ...entry,
+          message: normalizeActivityMessage(entry.message),
+        }))
       : [],
     prices: {
       novitera: catalyst.prices?.novitera || "",
@@ -157,19 +208,78 @@ function normalizeCatalyst(catalyst) {
   };
 }
 
+function base64UrlEncodeUtf8(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = "";
+
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+function buildValdiQuery(serialNumber) {
+  const payload = {
+    body: {
+      request: {
+        search: (serialNumber || "").trim(),
+      },
+      index: 0,
+      limit: 25,
+    },
+  };
+
+  return base64UrlEncodeUtf8(JSON.stringify(payload));
+}
+
+function buildPartnerLinks(serialNumber) {
+  const cleanSerial = (serialNumber || "").trim();
+  const encodedSerial = encodeURIComponent(cleanSerial);
+  const valdiQuery = buildValdiQuery(cleanSerial);
+
+  return {
+    novitera: "https://novitera.com/",
+    dsauto: `https://katalizatorychrzanow.pl/en/cennik/?search=${encodedSerial}`,
+    valdi: `https://catalog.katalizatory.org/en?q=${valdiQuery}`,
+  };
+}
+
 function computeLastKnownSalePrice(serialNumber, excludeId) {
-  return state.catalysts
-    .filter((item) => item.serialNumber.trim().toLowerCase() === serialNumber.trim().toLowerCase())
-    .filter((item) => item.id !== excludeId)
-    .filter((item) => item.finalAction === STATUS.SOLD && Number(item.finalSalePrice) > 0)
-    .sort((a, b) => new Date(b.saleDate || b.updatedAt) - new Date(a.saleDate || a.updatedAt))[0] || null;
+  return (
+    state.catalysts
+      .filter(
+        (item) =>
+          item.serialNumber.trim().toLowerCase() ===
+          serialNumber.trim().toLowerCase(),
+      )
+      .filter((item) => item.id !== excludeId)
+      .filter(
+        (item) =>
+          item.finalAction === STATUS.SOLD && Number(item.finalSalePrice) > 0,
+      )
+      .sort(
+        (a, b) =>
+          new Date(b.saleDate || b.updatedAt) -
+          new Date(a.saleDate || a.updatedAt),
+      )[0] || null
+  );
 }
 
 function createActivityEntry(message) {
   return { id: crypto.randomUUID(), message, timestamp: nowIso() };
 }
 
-function buildCatalyst({ serialNumber, status, createdBy, notes = "", photoDataUrl = "" }) {
+function buildCatalyst({
+  serialNumber,
+  status,
+  createdBy,
+  notes = "",
+  photoDataUrl = "",
+}) {
   const id = crypto.randomUUID();
   const internalId = generateInternalId();
   const createdAt = nowIso();
@@ -190,7 +300,11 @@ function buildCatalyst({ serialNumber, status, createdBy, notes = "", photoDataU
     outcomeReason: "",
     notes,
     photoDataUrl,
-    activity: [createActivityEntry(`Катализаторът е регистриран със статус "${normalizedStatus}".`)],
+    activity: [
+      createActivityEntry(
+        `Катализаторът е регистриран със статус "${normalizedStatus}".`,
+      ),
+    ],
   };
 }
 
@@ -207,24 +321,65 @@ function upsertStatusFilterOptions() {
 }
 
 function getDashboardMetrics() {
-  const stockCount = state.catalysts.filter((item) => [STATUS.PRESENT, STATUS.REVIEW].includes(item.status)).length;
-  const soldCount = state.catalysts.filter((item) => item.finalAction === STATUS.SOLD || item.status === STATUS.SOLD).length;
-  const recyclingCount = state.catalysts.filter((item) => item.finalAction === STATUS.RECYCLING || item.status === STATUS.RECYCLING).length;
-  const disposedCount = state.catalysts.filter((item) => item.finalAction === STATUS.DISPOSED || item.status === STATUS.DISPOSED).length;
+  const stockCount = state.catalysts.filter((item) =>
+    [STATUS.PRESENT, STATUS.REVIEW].includes(item.status),
+  ).length;
+  const soldCount = state.catalysts.filter(
+    (item) => item.finalAction === STATUS.SOLD || item.status === STATUS.SOLD,
+  ).length;
+  const recyclingCount = state.catalysts.filter(
+    (item) =>
+      item.finalAction === STATUS.RECYCLING || item.status === STATUS.RECYCLING,
+  ).length;
+  const disposedCount = state.catalysts.filter(
+    (item) =>
+      item.finalAction === STATUS.DISPOSED || item.status === STATUS.DISPOSED,
+  ).length;
   const now = new Date();
   const newCount = state.catalysts.filter((item) => {
     const createdDate = new Date(item.createdAt);
-    return createdDate.getMonth() === now.getMonth() && createdDate.getFullYear() === now.getFullYear();
+    return (
+      createdDate.getMonth() === now.getMonth() &&
+      createdDate.getFullYear() === now.getFullYear()
+    );
   }).length;
   const pricedCount = state.catalysts.filter(hasAnyPrice).length;
-  const convertedCount = state.catalysts.filter((item) => [STATUS.SOLD, STATUS.RECYCLING, STATUS.DISPOSED].includes(item.finalAction || item.status)).length;
+  const convertedCount = state.catalysts.filter((item) =>
+    [STATUS.SOLD, STATUS.RECYCLING, STATUS.DISPOSED].includes(
+      item.finalAction || item.status,
+    ),
+  ).length;
   return [
-    { label: "Текуща наличност", value: String(stockCount), detail: "Налични или в процес на преглед" },
-    { label: "Продадени", value: String(soldCount), detail: "Общ брой приключени продажби" },
-    { label: "За рециклиране", value: String(recyclingCount), detail: "Маркирани за рециклиране" },
-    { label: "Изхвърлени", value: String(disposedCount), detail: "Отписани след преглед" },
-    { label: "Нови този месец", value: String(newCount), detail: "Скоро регистрирани катализатори" },
-    { label: "Конверсия", value: `${convertedCount}/${pricedCount || 0}`, detail: "Оценени записи с краен резултат" },
+    {
+      label: "Текуща наличност",
+      value: String(stockCount),
+      detail: "Налични или в процес на преглед",
+    },
+    {
+      label: "Продадени",
+      value: String(soldCount),
+      detail: "Общ брой приключени продажби",
+    },
+    {
+      label: "За рециклиране",
+      value: String(recyclingCount),
+      detail: "Маркирани за рециклиране",
+    },
+    {
+      label: "Изхвърлени",
+      value: String(disposedCount),
+      detail: "Отписани след преглед",
+    },
+    {
+      label: "Нови този месец",
+      value: String(newCount),
+      detail: "Скоро регистрирани катализатори",
+    },
+    {
+      label: "Конверсия",
+      value: `${convertedCount}/${pricedCount || 0}`,
+      detail: "Оценени записи с краен резултат",
+    },
   ];
 }
 
@@ -245,12 +400,21 @@ function getFilteredCatalysts() {
     .filter((item) => {
       const search = state.filters.search.trim().toLowerCase();
       if (!search) return true;
-      return item.serialNumber.toLowerCase().includes(search) || item.internalId.toLowerCase().includes(search);
+      return (
+        item.serialNumber.toLowerCase().includes(search) ||
+        item.internalId.toLowerCase().includes(search)
+      );
     })
-    .filter((item) => state.filters.status === "all" ? true : item.status === state.filters.status)
+    .filter((item) =>
+      state.filters.status === "all"
+        ? true
+        : item.status === state.filters.status,
+    )
     .filter((item) => {
       if (state.filters.pricing === "all") return true;
-      return state.filters.pricing === "priced" ? hasAnyPrice(item) : !hasAnyPrice(item);
+      return state.filters.pricing === "priced"
+        ? hasAnyPrice(item)
+        : !hasAnyPrice(item);
     })
     .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 }
@@ -265,13 +429,20 @@ function renderPriceSummary(catalyst) {
 
 function statusClassName(status) {
   switch (status) {
-    case STATUS.PRESENT: return "status-present";
-    case STATUS.REVIEW: return "status-review";
-    case STATUS.RESERVED: return "status-reserved";
-    case STATUS.SOLD: return "status-sold";
-    case STATUS.RECYCLING: return "status-recycling";
-    case STATUS.DISPOSED: return "status-disposed";
-    default: return "";
+    case STATUS.PRESENT:
+      return "status-present";
+    case STATUS.REVIEW:
+      return "status-review";
+    case STATUS.RESERVED:
+      return "status-reserved";
+    case STATUS.SOLD:
+      return "status-sold";
+    case STATUS.RECYCLING:
+      return "status-recycling";
+    case STATUS.DISPOSED:
+      return "status-disposed";
+    default:
+      return "";
   }
 }
 
@@ -284,7 +455,8 @@ function renderTable() {
     const row = document.createElement("tr");
     const cell = document.createElement("td");
     cell.colSpan = 6;
-    cell.innerHTML = '<div class="empty-state">Няма катализатори, които отговарят на избраните филтри.</div>';
+    cell.innerHTML =
+      '<div class="empty-state">Няма катализатори, които отговарят на избраните филтри.</div>';
     row.append(cell);
     tableBody.append(row);
     return;
@@ -312,15 +484,18 @@ function renderHistory(history) {
   activityHistory.innerHTML = "";
   if (!history.length) {
     const item = document.createElement("li");
-    item.innerHTML = "<strong>Все още няма записани действия.</strong><span>Тук ще се виждат всички промени по катализатора.</span>";
+    item.innerHTML =
+      "<strong>Все още няма записани действия.</strong><span>Тук ще се виждат всички промени по катализатора.</span>";
     activityHistory.append(item);
     return;
   }
-  [...history].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).forEach((entry) => {
-    const item = document.createElement("li");
-    item.innerHTML = `<strong>${escapeHtml(entry.message)}</strong><span>${escapeHtml(formatDateTime(entry.timestamp))}</span>`;
-    activityHistory.append(item);
-  });
+  [...history]
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+    .forEach((entry) => {
+      const item = document.createElement("li");
+      item.innerHTML = `<strong>${escapeHtml(entry.message)}</strong><span>${escapeHtml(formatDateTime(entry.timestamp))}</span>`;
+      activityHistory.append(item);
+    });
 }
 
 function renderDetail() {
@@ -334,16 +509,46 @@ function renderDetail() {
   detailEmpty.classList.add("hidden");
   detailView.classList.remove("hidden");
 
-  const lastKnownSale = computeLastKnownSalePrice(catalyst.serialNumber, catalyst.id);
+  const lastKnownSale = computeLastKnownSalePrice(
+    catalyst.serialNumber,
+    catalyst.id,
+  );
   detailId.textContent = `Вътрешен ID #${catalyst.internalId}`;
   detailSerial.textContent = catalyst.serialNumber;
   detailSummary.innerHTML = "";
 
+  const partnerLinks = buildPartnerLinks(catalyst.serialNumber);
+  noviteraLink.href = partnerLinks.novitera;
+  dsautoLink.href = partnerLinks.dsauto;
+  valdiLink.href = partnerLinks.valdi;
+
   [
-    { title: "Текущ статус", value: catalyst.status, detail: `Регистриран ${formatDateTime(catalyst.createdAt)}` },
-    { title: "Регистриран от", value: catalyst.createdBy || "Неуточнен служител", detail: "Служител по първоначалния прием" },
-    { title: "Последна известна продажба", value: lastKnownSale ? formatMoney(lastKnownSale.finalSalePrice) : "Няма предишна продажба", detail: lastKnownSale ? `Партньор: ${lastKnownSale.selectedPartner || "Неуточнен"}` : "Използвайте като ориентир" },
-    { title: "Краен резултат", value: catalyst.finalAction || "Все още няма", detail: catalyst.finalAction ? `Обновен ${formatDateTime(catalyst.updatedAt)}` : "Все още е в активен процес" },
+    {
+      title: "Текущ статус",
+      value: catalyst.status,
+      detail: `Регистриран ${formatDateTime(catalyst.createdAt)}`,
+    },
+    {
+      title: "Регистриран от",
+      value: catalyst.createdBy || "Неуточнен служител",
+      detail: "Служител по първоначалния прием",
+    },
+    {
+      title: "Последна известна продажба",
+      value: lastKnownSale
+        ? formatMoney(lastKnownSale.finalSalePrice)
+        : "Няма предишна продажба",
+      detail: lastKnownSale
+        ? `Партньор: ${lastKnownSale.selectedPartner || "Неуточнен"}`
+        : "Използвайте като ориентир",
+    },
+    {
+      title: "Краен резултат",
+      value: catalyst.finalAction || "Все още няма",
+      detail: catalyst.finalAction
+        ? `Обновен ${formatDateTime(catalyst.updatedAt)}`
+        : "Все още е в активен процес",
+    },
   ].forEach((card) => {
     const div = document.createElement("div");
     div.className = "summary-card";
@@ -412,11 +617,13 @@ function registerBulkCatalysts() {
     .filter(Boolean);
   if (!serials.length) return;
 
-  const newCatalysts = serials.map((serial) => buildCatalyst({
-    serialNumber: serial,
-    status: STATUS.PRESENT,
-    createdBy: quickRegisterForm.createdBy.value || "",
-  }));
+  const newCatalysts = serials.map((serial) =>
+    buildCatalyst({
+      serialNumber: serial,
+      status: STATUS.PRESENT,
+      createdBy: quickRegisterForm.createdBy.value || "",
+    }),
+  );
 
   state.catalysts.push(...newCatalysts);
   state.selectedId = newCatalysts[newCatalysts.length - 1].id;
@@ -451,10 +658,14 @@ function buildActivityMessage(catalyst) {
 
 function syncStatusAndAction(catalyst) {
   if (catalyst.finalAction === STATUS.SOLD) catalyst.status = STATUS.SOLD;
-  else if (catalyst.finalAction === STATUS.RECYCLING) catalyst.status = STATUS.RECYCLING;
-  else if (catalyst.finalAction === STATUS.DISPOSED) catalyst.status = STATUS.DISPOSED;
-  else if (catalyst.finalAction === STATUS.RESERVED) catalyst.status = STATUS.RESERVED;
-  else if (hasAnyPrice(catalyst) && catalyst.status === STATUS.PRESENT) catalyst.status = STATUS.REVIEW;
+  else if (catalyst.finalAction === STATUS.RECYCLING)
+    catalyst.status = STATUS.RECYCLING;
+  else if (catalyst.finalAction === STATUS.DISPOSED)
+    catalyst.status = STATUS.DISPOSED;
+  else if (catalyst.finalAction === STATUS.RESERVED)
+    catalyst.status = STATUS.RESERVED;
+  else if (hasAnyPrice(catalyst) && catalyst.status === STATUS.PRESENT)
+    catalyst.status = STATUS.REVIEW;
 }
 
 function updateSelectedCatalyst() {
@@ -503,8 +714,12 @@ function updateSelectedCatalyst() {
     outcomeReason: catalyst.outcomeReason,
   });
 
-  if (previousSnapshot !== currentSnapshot) catalyst.activity.push(createActivityEntry(buildActivityMessage(catalyst)));
-  if (hadDraftPhoto) catalyst.activity.push(createActivityEntry("Добавена или обновена е снимка."));
+  if (previousSnapshot !== currentSnapshot)
+    catalyst.activity.push(createActivityEntry(buildActivityMessage(catalyst)));
+  if (hadDraftPhoto)
+    catalyst.activity.push(
+      createActivityEntry("Добавена или обновена е снимка."),
+    );
 
   saveState();
   renderAll();
@@ -512,26 +727,57 @@ function updateSelectedCatalyst() {
 
 function seedDemoData() {
   const demoItems = [
-    { serialNumber: "KTX-4421-BG", status: STATUS.REVIEW, createdBy: "Николай", notes: "Запазен корпус, добър референтен брой." },
-    { serialNumber: "VN-9011-R", status: STATUS.SOLD, createdBy: "Петър", notes: "Повтарящ се сериен номер в предишни продажби." },
-    { serialNumber: "DSA-1100-X", status: STATUS.RECYCLING, createdBy: "Мария", notes: "Лошо състояние, не си струва директна продажба." },
+    {
+      serialNumber: "KTX-4421-BG",
+      status: STATUS.REVIEW,
+      createdBy: "Николай",
+      notes: "Запазен корпус, добър референтен брой.",
+    },
+    {
+      serialNumber: "VN-9011-R",
+      status: STATUS.SOLD,
+      createdBy: "Петър",
+      notes: "Повтарящ се сериен номер в предишни продажби.",
+    },
+    {
+      serialNumber: "DSA-1100-X",
+      status: STATUS.RECYCLING,
+      createdBy: "Мария",
+      notes: "Лошо състояние, не си струва директна продажба.",
+    },
   ].map((item) => buildCatalyst(item));
 
-  demoItems[0].prices = { novitera: "280.00", dsauto: "295.00", valdi: "270.00" };
-  demoItems[0].activity.push(createActivityEntry("Въведени са начални цени от всички партньорски каталози."));
+  demoItems[0].prices = {
+    novitera: "280.00",
+    dsauto: "295.00",
+    valdi: "270.00",
+  };
+  demoItems[0].activity.push(
+    createActivityEntry(
+      "Въведени са начални цени от всички партньорски каталози.",
+    ),
+  );
 
-  demoItems[1].prices = { novitera: "340.00", dsauto: "360.00", valdi: "355.00" };
+  demoItems[1].prices = {
+    novitera: "340.00",
+    dsauto: "360.00",
+    valdi: "355.00",
+  };
   demoItems[1].finalAction = STATUS.SOLD;
   demoItems[1].status = STATUS.SOLD;
   demoItems[1].selectedPartner = "DSAuto";
   demoItems[1].finalSalePrice = "360.00";
   demoItems[1].saleDate = new Date().toISOString().slice(0, 10);
-  demoItems[1].activity.push(createActivityEntry("Продаден след сравнение на три каталожни оферти."));
+  demoItems[1].activity.push(
+    createActivityEntry("Продаден след сравнение на три каталожни оферти."),
+  );
 
   demoItems[2].prices = { novitera: "120.00", dsauto: "", valdi: "105.00" };
   demoItems[2].finalAction = STATUS.RECYCLING;
   demoItems[2].status = STATUS.RECYCLING;
-  demoItems[2].activity.push(createActivityEntry("Изпратен за рециклиране поради лошо състояние."));
+  demoItems[2].activity.push(
+    createActivityEntry("Изпратен за рециклиране поради лошо състояние."),
+  );
 
   state.catalysts.push(...demoItems);
   state.selectedId = demoItems[0].id;
@@ -563,7 +809,9 @@ function attachListeners() {
     registerSingleCatalyst("save");
   });
 
-  saveAddNewButton.addEventListener("click", () => registerSingleCatalyst("stay"));
+  saveAddNewButton.addEventListener("click", () =>
+    registerSingleCatalyst("stay"),
+  );
 
   bulkRegisterForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -598,7 +846,9 @@ function attachListeners() {
   });
 
   copySerialButton.addEventListener("click", async () => {
-    const catalyst = state.catalysts.find((item) => item.id === state.selectedId);
+    const catalyst = state.catalysts.find(
+      (item) => item.id === state.selectedId,
+    );
     if (!catalyst) return;
     try {
       await navigator.clipboard.writeText(catalyst.serialNumber);
@@ -625,7 +875,9 @@ function init() {
   upsertStatusFilterOptions();
   loadState();
   if (!state.selectedId && state.catalysts.length) {
-    state.selectedId = [...state.catalysts].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0].id;
+    state.selectedId = [...state.catalysts].sort(
+      (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt),
+    )[0].id;
   }
   attachListeners();
   renderAll();
