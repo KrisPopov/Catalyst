@@ -8,45 +8,23 @@
 </head>
 <body>
   <div class="app-shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <p class="eyebrow">Складов процес</p>
-        <h1>Система за управление на катализатори</h1>
-        <p class="brand-copy">Следете наличностите, сравнявайте каталожни цени и записвайте крайния резултат за всеки катализатор на едно място.</p>
-      </div>
-      <section class="panel quick-register">
-        <div class="panel-heading">
-          <h2>Бърза регистрация</h2>
-          <p>Регистрирайте по един катализатор за бърз прием.</p>
-        </div>
-        <form id="quick-register-form" class="stack">
-          <label><span>Сериен номер</span><input id="serial-input" name="serialNumber" type="text" placeholder="Въведете сериен номер" required></label>
-          <label><span>Статус</span><select id="status-input" name="status"><option value="Наличен">Наличен</option><option value="Оферти / В процес на преглед">Оферти / В процес на преглед</option></select></label>
-          <label><span>Регистриран от</span><input id="created-by-input" name="createdBy" type="text" placeholder="Име на служител"></label>
-          <div class="button-row">
-            <button type="submit" class="primary">Запази катализатора</button>
-            <button type="button" id="save-add-new" class="secondary">Запази и добави нов</button>
-          </div>
-        </form>
-      </section>
-      <section class="panel bulk-register">
-        <div class="panel-heading">
-          <h2>Масово въвеждане</h2>
-          <p>Поставете няколко серийни номера, по един на ред.</p>
-        </div>
-        <form id="bulk-register-form" class="stack">
-          <label><span>Серийни номера</span><textarea id="bulk-serials" name="serials" rows="7" placeholder="ABC123&#10;XYZ456&#10;LMN789"></textarea></label>
-          <button type="submit" class="secondary">Създай записи</button>
-        </form>
-      </section>
-    </aside>
     <main class="main-content">
       <header class="hero">
         <div>
           <p class="eyebrow">Оперативен преглед</p>
-          <h2>Ежедневни наличности, цени и крайни решения</h2>
+          <h1>Катализатори</h1>
         </div>
-        <button id="seed-demo-data" class="ghost">Зареди примерни данни</button>
+        <div class="hero-actions">
+          <button id="open-quick-register" class="action-button primary" type="button">
+            <span>Добави катализатор</span>
+            <small>Единичен прием</small>
+          </button>
+          <button id="open-bulk-register" class="action-button secondary" type="button">
+            <span>Масово въвеждане</span>
+            <small>Няколко серийни номера</small>
+          </button>
+          <button id="seed-demo-data" class="ghost" type="button">Примерни данни</button>
+        </div>
       </header>
       <section id="dashboard" class="dashboard-grid" aria-label="Показатели на таблото"></section>
       <section class="workspace-grid">
@@ -85,9 +63,9 @@
             </div>
             <div class="detail-summary" id="detail-summary"></div>
             <div class="partner-links">
-              <a id="novitera-link" href="https://novitera.com/" target="_blank" rel="noreferrer">Отвори Novitera</a>
-              <a id="dsauto-link" href="https://katalizatorychrzanow.pl/en/cennik/" target="_blank" rel="noreferrer">Отвори DSAuto</a>
-              <a id="valdi-link" href="https://catalog.katalizatory.org/en" target="_blank" rel="noreferrer">Отвори Valdi</a>
+              <a id="novitera-link" href="https://novitera.com/" target="_blank" rel="noreferrer">Novitera</a>
+              <a id="dsauto-link" href="https://katalizatorychrzanow.pl/en/cennik/" target="_blank" rel="noreferrer">DSAuto</a>
+              <a id="valdi-link" href="https://catalog.katalizatory.org/en" target="_blank" rel="noreferrer">Valdi</a>
             </div>
             <form id="detail-form" class="stack detail-form">
               <div class="price-grid">
@@ -125,6 +103,56 @@
       </section>
     </main>
   </div>
+
+  <dialog id="quick-register-dialog" class="register-dialog">
+    <div class="dialog-panel">
+      <div class="panel-heading space-between">
+        <div>
+          <p class="eyebrow">Нов запис</p>
+          <h2>Добави катализатор</h2>
+        </div>
+        <button type="button" class="icon-button" data-close-dialog aria-label="Затвори">×</button>
+      </div>
+      <section class="quick-register">
+        <div class="panel-heading">
+          <h2>Бърза регистрация</h2>
+          <p>Регистрирайте по един катализатор за бърз прием.</p>
+        </div>
+        <form id="quick-register-form" class="stack">
+          <label><span>Сериен номер</span><input id="serial-input" name="serialNumber" type="text" placeholder="Въведете сериен номер" required></label>
+          <label><span>Статус</span><select id="status-input" name="status"><option value="Наличен">Наличен</option><option value="Оферти / В процес на преглед">Оферти / В процес на преглед</option></select></label>
+          <label><span>Регистриран от</span><input id="created-by-input" name="createdBy" type="text" placeholder="Име на служител"></label>
+          <div class="button-row">
+            <button type="submit" class="primary">Запази катализатора</button>
+            <button type="button" id="save-add-new" class="secondary">Запази и добави нов</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </dialog>
+
+  <dialog id="bulk-register-dialog" class="register-dialog">
+    <div class="dialog-panel">
+      <div class="panel-heading space-between">
+        <div>
+          <p class="eyebrow">Групов прием</p>
+          <h2>Масово въвеждане</h2>
+        </div>
+        <button type="button" class="icon-button" data-close-dialog aria-label="Затвори">×</button>
+      </div>
+      <section class="bulk-register">
+        <div class="panel-heading">
+          <h2>Масово въвеждане</h2>
+          <p>Поставете няколко серийни номера, по един на ред.</p>
+        </div>
+        <form id="bulk-register-form" class="stack">
+          <label><span>Регистриран от</span><input id="bulk-created-by-input" name="createdBy" type="text" placeholder="Име на служител"></label>
+          <label><span>Серийни номера</span><textarea id="bulk-serials" name="serials" rows="7" placeholder="ABC123&#10;XYZ456&#10;LMN789"></textarea></label>
+          <button type="submit" class="secondary">Създай записи</button>
+        </form>
+      </section>
+    </div>
+  </dialog>
   <template id="metric-card-template">
     <article class="metric-card"><p class="metric-label"></p><strong class="metric-value"></strong><span class="metric-detail"></span></article>
   </template>

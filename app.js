@@ -31,6 +31,10 @@ const dashboard = document.querySelector("#dashboard");
 const metricTemplate = document.querySelector("#metric-card-template");
 const tableBody = document.querySelector("#catalyst-table-body");
 const resultCount = document.querySelector("#result-count");
+const quickRegisterDialog = document.querySelector("#quick-register-dialog");
+const bulkRegisterDialog = document.querySelector("#bulk-register-dialog");
+const openQuickRegisterButton = document.querySelector("#open-quick-register");
+const openBulkRegisterButton = document.querySelector("#open-bulk-register");
 const quickRegisterForm = document.querySelector("#quick-register-form");
 const bulkRegisterForm = document.querySelector("#bulk-register-form");
 const saveAddNewButton = document.querySelector("#save-add-new");
@@ -55,6 +59,21 @@ const seedDemoDataButton = document.querySelector("#seed-demo-data");
 const noviteraLink = document.querySelector("#novitera-link");
 const dsautoLink = document.querySelector("#dsauto-link");
 const valdiLink = document.querySelector("#valdi-link");
+
+function openDialog(dialog, focusSelector) {
+  if (!dialog) return;
+  if (typeof dialog.showModal === "function") dialog.showModal();
+  else dialog.setAttribute("open", "");
+
+  const focusTarget = focusSelector ? dialog.querySelector(focusSelector) : null;
+  window.setTimeout(() => focusTarget?.focus(), 0);
+}
+
+function closeDialog(dialog) {
+  if (!dialog) return;
+  if (typeof dialog.close === "function") dialog.close();
+  else dialog.removeAttribute("open");
+}
 
 const state = {
   catalysts: [],
@@ -608,6 +627,7 @@ function registerSingleCatalyst(saveMode) {
   quickRegisterForm.reset();
   document.querySelector("#status-input").value = STATUS.PRESENT;
   if (saveMode === "stay") document.querySelector("#serial-input").focus();
+  else closeDialog(quickRegisterDialog);
 }
 
 function registerBulkCatalysts() {
@@ -621,7 +641,7 @@ function registerBulkCatalysts() {
     buildCatalyst({
       serialNumber: serial,
       status: STATUS.PRESENT,
-      createdBy: quickRegisterForm.createdBy.value || "",
+      createdBy: String(new FormData(bulkRegisterForm).get("createdBy") || ""),
     }),
   );
 
@@ -630,6 +650,7 @@ function registerBulkCatalysts() {
   saveState();
   renderAll();
   bulkRegisterForm.reset();
+  closeDialog(bulkRegisterDialog);
 }
 
 function sanitizeMoney(value) {
@@ -804,6 +825,24 @@ function escapeHtml(value) {
 }
 
 function attachListeners() {
+  openQuickRegisterButton.addEventListener("click", () => {
+    openDialog(quickRegisterDialog, "#serial-input");
+  });
+
+  openBulkRegisterButton.addEventListener("click", () => {
+    openDialog(bulkRegisterDialog, "#bulk-created-by-input");
+  });
+
+  document.querySelectorAll("[data-close-dialog]").forEach((button) => {
+    button.addEventListener("click", () => closeDialog(button.closest("dialog")));
+  });
+
+  [quickRegisterDialog, bulkRegisterDialog].forEach((dialog) => {
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) closeDialog(dialog);
+    });
+  });
+
   quickRegisterForm.addEventListener("submit", (event) => {
     event.preventDefault();
     registerSingleCatalyst("save");
